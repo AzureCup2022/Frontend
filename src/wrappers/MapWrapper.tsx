@@ -3,6 +3,16 @@ import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-
 import "azure-maps-drawing-tools";
 import "../components/Maps/Legend/LegendControl";
 import { LegendControl, LegendType } from "../components/Maps/Legend";
+import MDBox from "../components/MDBox";
+import MDButton from "../components/MDButton";
+import {
+  Grid,
+  MenuItem, Stack,
+  TextField
+} from "@mui/material";
+import { useState } from "react";
+import "../styles/mui-override.css";
+
 
 // TODO: In dark mode, display grayscale_dark map.
 
@@ -85,9 +95,9 @@ const legend = new LegendControl({
 const controls: IAzureMapControls[] = [{
   controlName: "CompassControl",
   controlOptions: { rotationDegreesDelta: 10 },
-  options: { position: "top-right" } as ControlOptions
+  options: { position: ControlPosition.TopLeft } as ControlOptions
 }, {
-  controlName: "ZoomControl", options: { position: "top-right" } as ControlOptions
+  controlName: "ZoomControl", options: { position: ControlPosition.TopLeft } as ControlOptions
 }];
 
 // @ts-ignore
@@ -101,10 +111,77 @@ const customControls: [IAzureCustomControls] = [
   }
 ];
 
-const MapWrapper = () => (<AzureMapsProvider>
-  <div style={{ height: "70vh" }}>
-    <AzureMap options={option} controls={controls} customControls={customControls} />
-  </div>
-</AzureMapsProvider>);
+function MapWrapper() {
+  const [selectedCity, setCity] = useState("");
+  const [availableCities, setAvailableCities] = useState(["Prague", "Paris"]);
+
+  const [selectedOverlay, setOverlay] = useState("");
+  const [availableOverlays, setAvailableOverlays] = useState(["Loudness", "Pollution"]);
+
+  const handleCityChange = (event) => {
+    setCity(event.target.value as string);
+  };
+
+  const handleOverlayChange = (event) => {
+    setOverlay(event.target.value as string);
+  };
+
+  return (
+    <>
+      <Grid paddingBottom={3}>
+        <Grid item xs={12} md={12} lg={4}>
+          <MDBox
+            sx={{ p: 2 }}>
+
+            <TextField
+              label="City"
+              style={{ width: "200px" }}
+              select
+              value={selectedCity}
+              onChange={handleCityChange}
+            >
+              {availableCities.map((city, i) => <MenuItem key={i} value={city}>{city}</MenuItem>)}
+            </TextField>
+
+          </MDBox>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={4}>
+          <MDBox
+            sx={{ p: 2 }}>
+
+            <TextField
+              label="Data"
+              style={{ minWidth: "200px" }}
+              select
+              value={selectedOverlay}
+              onChange={handleOverlayChange}
+            >
+              {availableOverlays.map((overlay, i) => <MenuItem key={i} value={overlay}>{overlay}</MenuItem>)}
+            </TextField>
+
+          </MDBox>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={4}>
+          <div className="stupidAssCenter">
+            <MDButton variant="contained" color="info">Display</MDButton>
+          </div>
+        </Grid>
+      </Grid>
+      <MDBox
+        shadow="lg"
+        borderRadius="lg"
+        style={{ overflow: "hidden" }}>
+
+        <AzureMapsProvider>
+          <div style={{ height: "70vh" }}>
+            <AzureMap options={option} controls={controls} customControls={customControls} />
+          </div>
+        </AzureMapsProvider>
+      </MDBox>
+    </>
+  );
+}
 
 export default MapWrapper;

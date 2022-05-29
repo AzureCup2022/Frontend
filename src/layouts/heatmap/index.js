@@ -28,6 +28,8 @@ import { useEffect, useCallback, useState } from "react";
 import MapWrapper from "../../wrappers/MapWrapper";
 
 import "../../styles/azure-maps-layer-legend.css";
+import "../../styles/mui-override.css";
+
 
 async function fetchMergedWeeklyPassRateData() {
 
@@ -54,8 +56,6 @@ async function fetchStats() {
 export default function Heatmap() {
   return (<DashboardLayout>
     <DashboardNavbar />
-    <MDBox py={3}>
-      <MapWrapper />
-    </MDBox>
+    <MapWrapper />
   </DashboardLayout>);
 }
