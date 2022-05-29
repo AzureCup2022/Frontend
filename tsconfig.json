@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "*": ["public/src/*"]
+    },
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationDir": "./js/typings",
+    "typeRoots": [ "./types", "./node_modules/@types"]
+  },
+  "include": [
+    "src"
+  ]
+}
