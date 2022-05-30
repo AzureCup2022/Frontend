@@ -12,6 +12,8 @@ import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-
 import { AzureMap, AzureMapsProvider, IAzureCustomControls, IAzureMapControls } from "react-azure-maps";
 import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "../restClient/RestClient";
 
+// ----=======================---- Map Options & Controls ----=======================---- //
+
 const option = {
   authOptions: {
     authType: AuthenticationType.subscriptionKey, subscriptionKey: ""
@@ -102,15 +104,24 @@ const customControls: [IAzureCustomControls] = [
   }
 ];
 
+// ----=======================---- React Component ----=======================---- //
+
 function MapWrapper() {
-  const [selectedCity, setCity] = useState({} as any );
+
+  // ----=======================---- States, Hooks ----=======================---- //
+
+  const [selectedCity, setCity] = useState({ name: "" } as any );
   const [availableCities, setAvailableCities] = useState([]);
 
   const [selectedOverlay, setOverlay] = useState("");
   const [availableOverlays, setAvailableOverlays] = useState([]);
 
   const handleCityChange = (event) => {
-    setCity(event.target.value as string);
+    const selectedCity = availableCities.find(city => city.name === event.target.value);
+
+    console.log("New city selected by the UI: " + selectedCity.name);
+
+    setCity(selectedCity);
   };
 
   const handleOverlayChange = (event) => {
@@ -133,13 +144,18 @@ function MapWrapper() {
         return;
       }
 
-      const overlays = await getAvailableOverlays(selectedCity.name);
+      setOverlay("");
+      setAvailableOverlays([]);
+
+      const overlays = await getAvailableOverlays(selectedCity.id);
       setAvailableOverlays(overlays);
       console.log("List of overlays updated.")
     }
 
     overlaysSetter().then();
   }, [selectedCity]);
+
+  // ----=======================---- DOM Elements ----=======================---- //
 
   return (
     <>
