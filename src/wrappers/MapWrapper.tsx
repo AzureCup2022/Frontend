@@ -159,14 +159,14 @@ function MapWrapper() {
 
   return (
     <>
-      <Grid paddingBottom={3}>
+      <Grid container paddingBottom={3}>
         <Grid item xs={12} md={12} lg={4}>
           <MDBox
             sx={{ p: 2 }}>
 
             <TextField
               label="City"
-              style={{ width: "200px" }}
+              style={{ minWidth: "100%" }}
               select
               value={selectedCity.name}
               onChange={handleCityChange}
@@ -183,7 +183,7 @@ function MapWrapper() {
 
             <TextField
               label="Data"
-              style={{ minWidth: "200px" }}
+              style={{ minWidth: "100%" }}
               select
               value={selectedOverlay}
               onChange={handleOverlayChange}
@@ -199,7 +199,15 @@ function MapWrapper() {
         <Grid item xs={12} md={12} lg={4}>
 
           <div className="stupidAssCenter">
-            <MDButton variant="contained" color="info">Display</MDButton>
+
+            <MDButton
+              variant="contained"
+              color="info"
+              disabled={!selectedOverlay}
+            >
+              Display
+            </MDButton>
+
           </div>
 
         </Grid>
