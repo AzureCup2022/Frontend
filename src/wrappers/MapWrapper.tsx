@@ -6,11 +6,11 @@ import { useState, useEffect } from "react";
 import MDBox from "../components/MDBox";
 import MDButton from "../components/MDButton";
 import { Grid, MenuItem, TextField } from "@mui/material";
+import { capitalizeFirstLetter } from "../helpers/StringUtils";
 import { LegendControl, LegendType } from "../components/Maps/Legend";
 import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-control";
 import { AzureMap, AzureMapsProvider, IAzureCustomControls, IAzureMapControls } from "react-azure-maps";
 import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "../restClient/RestClient";
-import { capitalizeFirstLetter } from "../helpers/StringUtils";
 
 const option = {
   authOptions: {
@@ -171,7 +171,7 @@ function MapWrapper() {
               select
               value={selectedOverlay}
               onChange={handleOverlayChange}
-              disabled={!selectedCity}
+              disabled={!selectedCity.name}
             >
               {availableOverlays.map((overlay, i) =>
                 <MenuItem key={i} value={capitalizeFirstLetter(overlay)}>{capitalizeFirstLetter(overlay)}</MenuItem>)}
