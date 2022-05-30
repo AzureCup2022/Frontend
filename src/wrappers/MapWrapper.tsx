@@ -110,11 +110,13 @@ function MapWrapper() {
 
   // ----=======================---- States, Hooks ----=======================---- //
 
-  const [selectedCity, setCity] = useState({ name: "" } as any );
+  const [selectedCity, setCity] = useState({ name: "" } as any);
   const [availableCities, setAvailableCities] = useState([]);
 
   const [selectedOverlay, setOverlay] = useState("");
   const [availableOverlays, setAvailableOverlays] = useState([]);
+
+  const [displayedOverlayData, setDisplayedOverlayData] = useState({} as any);
 
   const handleCityChange = (event) => {
     const selectedCity = availableCities.find(city => city.name === event.target.value);
@@ -128,11 +130,22 @@ function MapWrapper() {
     setOverlay(event.target.value as string);
   };
 
+  const displaySelectedOverlay = () => {
+    async function overlayFetcher() {
+      const overlay = await getCityOverlay(selectedCity.id, selectedOverlay.toLowerCase());
+      setDisplayedOverlayData(overlay);
+
+      console.log("The displayed overlay was changed to: "  + overlay.name);
+    }
+
+    overlayFetcher().then();
+  };
+
   useEffect(() => {
     async function citiesSetter() {
       const cities = await getAvailableCities();
       setAvailableCities(cities);
-      console.log("List of cities updated.")
+      console.log("List of cities updated.");
     }
 
     citiesSetter().then();
@@ -149,7 +162,7 @@ function MapWrapper() {
 
       const overlays = await getAvailableOverlays(selectedCity.id);
       setAvailableOverlays(overlays);
-      console.log("List of overlays updated.")
+      console.log("List of overlays updated.");
     }
 
     overlaysSetter().then();
@@ -204,6 +217,7 @@ function MapWrapper() {
               variant="contained"
               color="info"
               disabled={!selectedOverlay}
+              onClick={displaySelectedOverlay}
             >
               Display
             </MDButton>
