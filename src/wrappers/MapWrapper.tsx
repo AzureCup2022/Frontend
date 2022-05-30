@@ -8,8 +8,14 @@ import MDButton from "../components/MDButton";
 import { Grid, MenuItem, TextField } from "@mui/material";
 import { capitalizeFirstLetter } from "../helpers/StringUtils";
 import { LegendControl, LegendType } from "../components/Maps/Legend";
-import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-control";
-import { AzureMap, AzureMapsProvider, IAzureCustomControls, IAzureMapControls } from "react-azure-maps";
+import { AuthenticationType, ControlOptions, ControlPosition, data } from "azure-maps-control";
+import {
+  AzureMap,
+  AzureMapDataSourceProvider, AzureMapFeature, AzureMapLayerProvider,
+  AzureMapsProvider,
+  IAzureCustomControls,
+  IAzureMapControls
+} from "react-azure-maps";
 import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "../restClient/RestClient";
 
 // ----=======================---- Map Options & Controls ----=======================---- //
@@ -104,6 +110,19 @@ const customControls: [IAzureCustomControls] = [
   }
 ];
 
+const consistentZoomOptions = {
+  radius: [
+    "interpolate",
+    ["exponential", 2],
+    ["zoom"],
+    //For all zoom levels 10 or lower, set the radius to 2 pixels.
+    10, 2,
+
+    //Between zoom level 10 and 22, exponentially scale the radius from 2 pixels to 50000 pixels.
+    22, 50000
+  ]
+};
+
 // ----=======================---- React Component ----=======================---- //
 
 function MapWrapper() {
@@ -135,7 +154,7 @@ function MapWrapper() {
       const overlay = await getCityOverlay(selectedCity.id, selectedOverlay.toLowerCase());
       setDisplayedOverlayData(overlay);
 
-      console.log("The displayed overlay was changed to: "  + overlay.name);
+      console.log("The displayed overlay was changed to: " + overlay.name);
     }
 
     overlayFetcher().then();
@@ -172,6 +191,11 @@ function MapWrapper() {
 
   return (
     <>
+
+      {
+        // TODO: Take the grid below and move it into a minimizable panel.
+      }
+
       <Grid container paddingBottom={3}>
         <Grid item xs={12} md={12} lg={4}>
           <MDBox
@@ -234,10 +258,14 @@ function MapWrapper() {
 
         <AzureMapsProvider>
           <div style={{ height: "70vh" }}>
-            <AzureMap options={option} controls={controls} customControls={customControls} />
+            <AzureMap options={option} controls={controls} customControls={customControls}>
+              <AzureMapDataSourceProvider id={"DataSource"}
+                                          dataFromUrl="https://raw.githubusercontent.com/Azure-Samples/AzureMapsCodeSamples/vnext/Static/data/geojson/SamplePoiDataSet.json">
+                <AzureMapLayerProvider id={"HeatMap"} options={consistentZoomOptions} type={"HeatLayer"} />
+              </AzureMapDataSourceProvider>
+            </AzureMap>
           </div>
         </AzureMapsProvider>
-
       </MDBox>
     </>
   );
