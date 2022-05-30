@@ -1,23 +1,16 @@
-import { AzureMap, AzureMapsProvider, IAzureCustomControls, IAzureMapControls } from "react-azure-maps";
-import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-control";
+import "../styles/mui-override.css";
 import "azure-maps-drawing-tools";
 import "../components/Maps/Legend/LegendControl";
-import { LegendControl, LegendType } from "../components/Maps/Legend";
+
+import { useState, useEffect } from "react";
 import MDBox from "../components/MDBox";
 import MDButton from "../components/MDButton";
-import {
-  Grid,
-  MenuItem, Stack,
-  TextField
-} from "@mui/material";
-import { useState } from "react";
-import "../styles/mui-override.css";
-
-
-// TODO: In dark mode, display grayscale_dark map.
-
-// TODO: Lock the map to a city using https://docs.microsoft.com/en-us/javascript/api/azure-maps-control/atlas.cameraoptions?view=azure-maps-typescript-latest
-
+import { Grid, MenuItem, TextField } from "@mui/material";
+import { LegendControl, LegendType } from "../components/Maps/Legend";
+import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-control";
+import { AzureMap, AzureMapsProvider, IAzureCustomControls, IAzureMapControls } from "react-azure-maps";
+import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "../restClient/RestClient";
+import { capitalizeFirstLetter } from "../helpers/StringUtils";
 
 const option = {
   authOptions: {
@@ -88,8 +81,6 @@ const legend = new LegendControl({
   // layout: 'accordion',
 
   //container: 'outsidePanel',
-
-
 });
 
 const controls: IAzureMapControls[] = [{
@@ -112,11 +103,11 @@ const customControls: [IAzureCustomControls] = [
 ];
 
 function MapWrapper() {
-  const [selectedCity, setCity] = useState("");
-  const [availableCities, setAvailableCities] = useState(["Prague", "Paris"]);
+  const [selectedCity, setCity] = useState({} as any );
+  const [availableCities, setAvailableCities] = useState([]);
 
   const [selectedOverlay, setOverlay] = useState("");
-  const [availableOverlays, setAvailableOverlays] = useState(["Loudness", "Pollution"]);
+  const [availableOverlays, setAvailableOverlays] = useState([]);
 
   const handleCityChange = (event) => {
     setCity(event.target.value as string);
@@ -125,6 +116,30 @@ function MapWrapper() {
   const handleOverlayChange = (event) => {
     setOverlay(event.target.value as string);
   };
+
+  useEffect(() => {
+    async function citiesSetter() {
+      const cities = await getAvailableCities();
+      setAvailableCities(cities);
+      console.log("List of cities updated.")
+    }
+
+    citiesSetter().then();
+  }, []);
+
+  useEffect(() => {
+    async function overlaysSetter() {
+      if (!selectedCity.name) {
+        return;
+      }
+
+      const overlays = await getAvailableOverlays(selectedCity.name);
+      setAvailableOverlays(overlays);
+      console.log("List of overlays updated.")
+    }
+
+    overlaysSetter().then();
+  }, [selectedCity]);
 
   return (
     <>
@@ -137,10 +152,10 @@ function MapWrapper() {
               label="City"
               style={{ width: "200px" }}
               select
-              value={selectedCity}
+              value={selectedCity.name}
               onChange={handleCityChange}
             >
-              {availableCities.map((city, i) => <MenuItem key={i} value={city}>{city}</MenuItem>)}
+              {availableCities.map((city, i) => <MenuItem key={i} value={city.name}>{city.name}</MenuItem>)}
             </TextField>
 
           </MDBox>
@@ -156,19 +171,24 @@ function MapWrapper() {
               select
               value={selectedOverlay}
               onChange={handleOverlayChange}
+              disabled={!selectedCity}
             >
-              {availableOverlays.map((overlay, i) => <MenuItem key={i} value={overlay}>{overlay}</MenuItem>)}
+              {availableOverlays.map((overlay, i) =>
+                <MenuItem key={i} value={capitalizeFirstLetter(overlay)}>{capitalizeFirstLetter(overlay)}</MenuItem>)}
             </TextField>
 
           </MDBox>
         </Grid>
 
         <Grid item xs={12} md={12} lg={4}>
+
           <div className="stupidAssCenter">
             <MDButton variant="contained" color="info">Display</MDButton>
           </div>
+
         </Grid>
       </Grid>
+
       <MDBox
         shadow="lg"
         borderRadius="lg"
@@ -179,6 +199,7 @@ function MapWrapper() {
             <AzureMap options={option} controls={controls} customControls={customControls} />
           </div>
         </AzureMapsProvider>
+
       </MDBox>
     </>
   );
