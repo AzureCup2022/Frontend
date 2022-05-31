@@ -1,4 +1,4 @@
-const serverUrl: string = " https://localhost:7275/";
+const serverUrl: string = "https://azurecupbackend.azurewebsites.net/";
 export const controllers: string[] = [
   "Capabilities/GetAvailableCities",
   "Capabilities/GetAvailableOverlays",
@@ -20,7 +20,7 @@ export async function getCityOverlay(city: number, overlay: string) {
 async function fetchFromController(controller: string, params?: any) {
   if (!controllers.includes(controller)) {
     throw new Error("Invalid controller");
-  }
+  } 
 
   const url = new URL(serverUrl + controller);
 
@@ -36,6 +36,7 @@ async function fetchFromController(controller: string, params?: any) {
       "Content-Type": "application/json"
     }
   });
+  console.log(response);
 
   return response.json();
 }
