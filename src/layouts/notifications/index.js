@@ -81,6 +81,8 @@ function Notifications() {
               <MDAlert color={"info"} dismissible>
                 <MDTypography variant="body2" color="white">
                   A heatmap layer will appear on the map. Feel free to explore the map and see what you find interesting.
+                  <br />
+                  Scroll down the page to hide the selection dialog and see the entire map.
                 </MDTypography>
               </MDAlert>
             </MDBox>

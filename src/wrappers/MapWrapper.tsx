@@ -182,10 +182,6 @@ function MapWrapper() {
   return (
     <>
 
-      {
-        // TODO: Take the grid below and move it into a minimizable panel.
-      }
-
       <Grid container paddingBottom={3}>
         <Grid item xs={12} md={12} lg={4}>
           <MDBox
@@ -248,7 +244,7 @@ function MapWrapper() {
         style={{ overflow: "hidden" }}>
 
         <AzureMapsProvider>
-          <div style={{ height: "70vh" }}>
+          <div style={{ height: "calc(100vh - 160px)" }}>
             <AzureMap options={currentMapOptions} controls={controls} customControls={currentCustomControls}>
               {
                 // Draw the heatmap whenever the display URL is non-empty.
