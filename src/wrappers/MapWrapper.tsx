@@ -23,7 +23,7 @@ import {
 
 const option = {
   authOptions: {
-    authType: AuthenticationType.subscriptionKey, subscriptionKey: ""
+    authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
   }, style: "grayscale_light", showFeedbackLink: false, language: "en-US", center: [14.4, 50.1], zoom: 10, view: "Auto"
 };
 
@@ -120,9 +120,9 @@ function MapWrapper() {
   const displaySelectedOverlay = () => {
     async function overlayFetcher() {
       const overlayUrl = await getCityOverlay(selectedCity.id, selectedOverlay.toLowerCase());
-      setDisplayedOverlayUrl(overlayUrl);
+      setDisplayedOverlayUrl(overlayUrl["url"]);
 
-      console.log("The displayed overlay URL was changed to: " + overlayUrl);
+      console.log("The displayed overlay URL was changed to: " + overlayUrl["url"]);
     }
 
     overlayFetcher().then();
@@ -231,7 +231,7 @@ function MapWrapper() {
                 // Draw the heatmap whenever the display URL is non-empty.
                 displayedOverlayUrl ?
                   (<AzureMapDataSourceProvider id={"DataSource"}
-                                               dataFromUrl="https://raw.githubusercontent.com/Azure-Samples/AzureMapsCodeSamples/vnext/Static/data/geojson/SamplePoiDataSet.json">
+                                               dataFromUrl={displayedOverlayUrl}>
                       <AzureMapLayerProvider id={"HeatMap"} options={consistentZoomOptions} type={"HeatLayer"} />
                     </AzureMapDataSourceProvider>
                   )
