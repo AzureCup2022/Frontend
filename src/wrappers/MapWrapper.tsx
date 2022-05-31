@@ -21,12 +21,6 @@ import {
 
 // ----=======================---- Map Options & Controls ----=======================---- //
 
-const option = {
-  authOptions: {
-    authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
-  }, style: "grayscale_light", showFeedbackLink: false, language: "en-US", center: [14.4, 50.1], zoom: 10, view: "Auto"
-};
-
 // @ts-ignore
 const legends: LegendType[] = [
   {
@@ -95,6 +89,14 @@ const consistentZoomOptions = {
 
 function MapWrapper() {
 
+  // ----=======================---- Map Options ----=======================---- //
+
+  const mapOptions = {
+    authOptions: {
+      authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
+    }, style: "grayscale_light", showFeedbackLink: false, language: "en-US", center: [0, 0], zoom: 10, view: "Auto"
+  };
+
   // ----=======================---- States, Hooks ----=======================---- //
 
   const [selectedCity, setCity] = useState({ name: "" } as any);
@@ -105,12 +107,16 @@ function MapWrapper() {
 
   const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
 
+  const [currentMapOptions, setMapOptions] = useState(mapOptions);
+  const [forceUpdate, setForceUpdate] = useState(0);
+
   const handleCityChange = (event) => {
     const selectedCity = availableCities.find(city => city.name === event.target.value);
 
     console.log("New city selected by the UI: " + selectedCity.name);
 
     setCity(selectedCity);
+    setMapOptions({ ...currentMapOptions, center: [selectedCity.latitude, selectedCity.longitude] });
   };
 
   const handleOverlayChange = (event) => {
@@ -154,6 +160,11 @@ function MapWrapper() {
 
     overlaysSetter().then();
   }, [selectedCity]);
+
+  useEffect(() => {
+    console.log("Moved map center to: " + currentMapOptions.center);
+    setForceUpdate(forceUpdate + 1);
+  }, [currentMapOptions]);
 
   // ----=======================---- DOM Elements ----=======================---- //
 
@@ -220,13 +231,14 @@ function MapWrapper() {
       </Grid>
 
       <MDBox
+        key={forceUpdate}
         shadow="lg"
         borderRadius="lg"
         style={{ overflow: "hidden" }}>
 
         <AzureMapsProvider>
           <div style={{ height: "70vh" }}>
-            <AzureMap options={option} controls={controls} customControls={customControls}>
+            <AzureMap options={currentMapOptions} controls={controls} customControls={customControls} >
               {
                 // Draw the heatmap whenever the display URL is non-empty.
                 displayedOverlayUrl ?
