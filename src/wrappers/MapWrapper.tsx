@@ -25,7 +25,7 @@ import {
 const legends: LegendType[] = [
   {
     type: "gradient",
-    subtitle: "Gradient legend",
+    subtitle: "Intensity",
 
     // @ts-ignore
     stops: [{
@@ -61,17 +61,6 @@ const controls: IAzureMapControls[] = [{
   controlName: "ZoomControl", options: { position: ControlPosition.TopLeft } as ControlOptions
 }];
 
-// @ts-ignore
-const customControls: [IAzureCustomControls] = [
-  {
-    // @ts-ignore
-    control: legend,
-    controlOptions: {
-      position: ControlPosition.BottomLeft
-    }
-  }
-];
-
 const consistentZoomOptions = {
   radius: [
     "interpolate",
@@ -94,8 +83,19 @@ function MapWrapper() {
   const mapOptions = {
     authOptions: {
       authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
-    }, style: "grayscale_light", showFeedbackLink: false, language: "en-US", center: [0, 0], zoom: 10, view: "Auto"
+    }, style: "grayscale_light", showFeedbackLink: false, language: "en-US", center: [0, 30], zoom: 2, view: "Auto"
   };
+
+  // @ts-ignore
+  const customControls: [IAzureCustomControls] = [
+    {
+      // @ts-ignore
+      control: legend,
+      controlOptions: {
+        position: ControlPosition.BottomLeft
+      }
+    }
+  ];
 
   // ----=======================---- States, Hooks ----=======================---- //
 
@@ -108,6 +108,7 @@ function MapWrapper() {
   const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
 
   const [currentMapOptions, setMapOptions] = useState(mapOptions);
+  const [currentCustomControls, setCustomControls] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
 
   const handleCityChange = (event) => {
@@ -116,7 +117,7 @@ function MapWrapper() {
     console.log("New city selected by the UI: " + selectedCity.name);
 
     setCity(selectedCity);
-    setMapOptions({ ...currentMapOptions, center: [selectedCity.latitude, selectedCity.longitude] });
+    setMapOptions({ ...currentMapOptions, center: [selectedCity.latitude, selectedCity.longitude], zoom: selectedCity.defaultZoom });
   };
 
   const handleOverlayChange = (event) => {
@@ -129,6 +130,9 @@ function MapWrapper() {
       setDisplayedOverlayUrl(overlayUrl["url"]);
 
       console.log("The displayed overlay URL was changed to: " + overlayUrl["url"]);
+
+      if (overlayUrl["url"])
+        setCustomControls(customControls);
     }
 
     overlayFetcher().then();
@@ -165,6 +169,11 @@ function MapWrapper() {
     console.log("Moved map center to: " + currentMapOptions.center);
     setForceUpdate(forceUpdate + 1);
   }, [currentMapOptions]);
+
+  useEffect(() => {
+    console.log("The legend has been added");
+    setForceUpdate(forceUpdate + 1);
+  }, [currentCustomControls]);
 
   // ----=======================---- DOM Elements ----=======================---- //
 
@@ -238,7 +247,7 @@ function MapWrapper() {
 
         <AzureMapsProvider>
           <div style={{ height: "70vh" }}>
-            <AzureMap options={currentMapOptions} controls={controls} customControls={customControls} >
+            <AzureMap options={currentMapOptions} controls={controls} customControls={currentCustomControls}>
               {
                 // Draw the heatmap whenever the display URL is non-empty.
                 displayedOverlayUrl ?
