@@ -71,7 +71,9 @@ const consistentZoomOptions = {
 
     //Between zoom level 10 and 22, exponentially scale the radius from 2 pixels to 50000 pixels.
     22, 50000
-  ]
+  ],
+  intensity: 0.5,
+  opacity: 0.5
 };
 
 // ----=======================---- React Component ----=======================---- //
