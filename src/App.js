@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -43,6 +43,7 @@ import rtlPlugin from "stylis-plugin-rtl";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
+
 // Material Dashboard 2 React routes
 import routes from "routes";
 
@@ -52,6 +53,10 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 // Images
 import brandWhite from "assets/images/logo.png";
 import brandDark from "assets/images/logo.png";
+
+
+const ThemeCtx = React.createContext(darkMode);
+
 
 export default function App() {
 	const [controller, dispatch] = useMaterialUIController();
@@ -148,27 +153,29 @@ export default function App() {
 
 	return direction === "rtl" ? (
 		<CacheProvider value={rtlCache}>
-			<ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
-				<CssBaseline />
-				{layout === "heatmap" && (
-					<>
-						<Sidenav
-							color={sidenavColor}
-							brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-							brandName="Locato"
-							routes={routes}
-							onMouseEnter={handleOnMouseEnter}
-							onMouseLeave={handleOnMouseLeave}
-						/>
-						<Configurator />
-					</>
-				)}
-				{layout === "vr" && <Configurator />}
-				<Routes>
-					{getRoutes(routes)}
-					<Route path="*" element={<Navigate to="/heatmap" />} />
-				</Routes>
-			</ThemeProvider>
+			<ThemeCtx.Provider value = {darkMode}>
+				<ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
+					<CssBaseline />
+					{layout === "heatmap" && (
+						<>
+							<Sidenav
+								color={sidenavColor}
+								brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+								brandName="Locato"
+								routes={routes}
+								onMouseEnter={handleOnMouseEnter}
+								onMouseLeave={handleOnMouseLeave}
+								/>
+							<Configurator />
+						</>
+					)}
+					{layout === "vr" && <Configurator />}
+					<Routes>
+						{getRoutes(routes)}
+						<Route path="*" element={<Navigate to="/heatmap" />} />
+					</Routes>
+				</ThemeProvider>
+			</ThemeCtx.Provider>
 		</CacheProvider>
 	) : (
 		<ThemeProvider theme={darkMode ? themeDark : theme}>

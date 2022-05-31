@@ -2,7 +2,7 @@ import "../styles/mui-override.css";
 import "azure-maps-drawing-tools";
 import "../components/Maps/Legend/LegendControl";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import MDBox from "../components/MDBox";
 import MDButton from "../components/MDButton";
 import { Grid, MenuItem, TextField } from "@mui/material";
@@ -18,14 +18,14 @@ import {
   IAzureCustomControls,
   IAzureMapControls
 } from "react-azure-maps";
-
+import {ThemeCtx} from "../App";
 // ----=======================---- Map Options & Controls ----=======================---- //
 
-const option = {
-  authOptions: {
-    authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
-  }, style: "grayscale_light", showFeedbackLink: false, language: "en-US", center: [14.4, 50.1], zoom: 10, view: "Auto"
-};
+// const option = {
+//   authOptions: {
+//     authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
+//   }, style: useContext(ThemeContext) ? "grayscale_light" : "grayscale_dark", showFeedbackLink: false, language: "en-US", center: [14.4, 50.1], zoom: 10, view: "Auto"
+// };
 
 // @ts-ignore
 const legends: LegendType[] = [
@@ -104,6 +104,10 @@ function MapWrapper() {
   const [availableOverlays, setAvailableOverlays] = useState([]);
 
   const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
+
+  const controller = useContext(ThemeCtx);
+  
+  console.log(controller);
 
   const handleCityChange = (event) => {
     const selectedCity = availableCities.find(city => city.name === event.target.value);
@@ -226,7 +230,14 @@ function MapWrapper() {
 
         <AzureMapsProvider>
           <div style={{ height: "70vh" }}>
-            <AzureMap options={option} controls={controls} customControls={customControls}>
+            <AzureMap options={
+              {
+                authOptions: {
+                  authType: AuthenticationType.subscriptionKey, subscriptionKey: process.env.REACT_APP_MAP_API_KEY
+                },
+                style: useContext(ThemeCtx) ? "grayscale_light" : "grayscale_dark", 
+                showFeedbackLink: false, language: "en-US", center: [14.4, 50.1], zoom: 10, view: "Auto"
+              }} controls={controls} customControls={customControls}>
               {
                 // Draw the heatmap whenever the display URL is non-empty.
                 displayedOverlayUrl ?
