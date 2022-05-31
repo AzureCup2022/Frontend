@@ -8,15 +8,16 @@ import MDButton from "../components/MDButton";
 import { Grid, MenuItem, TextField } from "@mui/material";
 import { capitalizeFirstLetter } from "../helpers/StringUtils";
 import { LegendControl, LegendType } from "../components/Maps/Legend";
-import { AuthenticationType, ControlOptions, ControlPosition, data } from "azure-maps-control";
+import { AuthenticationType, ControlOptions, ControlPosition } from "azure-maps-control";
+import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "../restClient/RestClient";
 import {
   AzureMap,
-  AzureMapDataSourceProvider, AzureMapFeature, AzureMapLayerProvider,
+  AzureMapDataSourceProvider,
+  AzureMapLayerProvider,
   AzureMapsProvider,
   IAzureCustomControls,
   IAzureMapControls
 } from "react-azure-maps";
-import { getAvailableCities, getAvailableOverlays, getCityOverlay } from "../restClient/RestClient";
 
 // ----=======================---- Map Options & Controls ----=======================---- //
 
@@ -43,39 +44,6 @@ const legends: LegendType[] = [
       offset: 0.75, color: "yellow"
     }, {
       offset: 1, color: "red", label: "high"
-    }]
-  },
-
-  //A gradient legend with stepped color stops.
-  {
-    type: "gradient",
-    subtitle: "Gradient legend - stepped",
-
-    // @ts-ignore
-    stops: [{
-      offset: 0, color: "#03939c", label: "< -1"
-    }, {
-      offset: 0.167, color: "#03939c"
-    }, {
-      offset: 0.167, color: "#5ebabf"
-    }, {
-      offset: 0.334, color: "#5ebabf"
-    }, {
-      offset: 0.334, color: "#bae1e2"
-    }, {
-      offset: 0.501, color: "#bae1e2"
-    }, {
-      offset: 0.501, color: "#f8c0aa", label: "0"
-    }, {
-      offset: 0.668, color: "#f8c0aa"
-    }, {
-      offset: 0.668, color: "#dd7755"
-    }, {
-      offset: 0.835, color: "#dd7755"
-    }, {
-      offset: 0.835, color: "#c22e00"
-    }, {
-      offset: 1, color: "#c22e00", label: "> 1"
     }]
   }];
 
@@ -135,7 +103,7 @@ function MapWrapper() {
   const [selectedOverlay, setOverlay] = useState("");
   const [availableOverlays, setAvailableOverlays] = useState([]);
 
-  const [displayedOverlayData, setDisplayedOverlayData] = useState({} as any);
+  const [displayedOverlayUrl, setDisplayedOverlayUrl] = useState("");
 
   const handleCityChange = (event) => {
     const selectedCity = availableCities.find(city => city.name === event.target.value);
@@ -151,10 +119,10 @@ function MapWrapper() {
 
   const displaySelectedOverlay = () => {
     async function overlayFetcher() {
-      const overlay = await getCityOverlay(selectedCity.id, selectedOverlay.toLowerCase());
-      setDisplayedOverlayData(overlay);
+      const overlayUrl = await getCityOverlay(selectedCity.id, selectedOverlay.toLowerCase());
+      setDisplayedOverlayUrl(overlayUrl);
 
-      console.log("The displayed overlay was changed to: " + overlay.name);
+      console.log("The displayed overlay URL was changed to: " + overlayUrl);
     }
 
     overlayFetcher().then();
@@ -259,10 +227,17 @@ function MapWrapper() {
         <AzureMapsProvider>
           <div style={{ height: "70vh" }}>
             <AzureMap options={option} controls={controls} customControls={customControls}>
-              <AzureMapDataSourceProvider id={"DataSource"}
-                                          dataFromUrl="https://raw.githubusercontent.com/Azure-Samples/AzureMapsCodeSamples/vnext/Static/data/geojson/SamplePoiDataSet.json">
-                <AzureMapLayerProvider id={"HeatMap"} options={consistentZoomOptions} type={"HeatLayer"} />
-              </AzureMapDataSourceProvider>
+              {
+                // Draw the heatmap whenever the display URL is non-empty.
+                displayedOverlayUrl ?
+                  (<AzureMapDataSourceProvider id={"DataSource"}
+                                               dataFromUrl="https://raw.githubusercontent.com/Azure-Samples/AzureMapsCodeSamples/vnext/Static/data/geojson/SamplePoiDataSet.json">
+                      <AzureMapLayerProvider id={"HeatMap"} options={consistentZoomOptions} type={"HeatLayer"} />
+                    </AzureMapDataSourceProvider>
+                  )
+                  :
+                  <></>
+              }
             </AzureMap>
           </div>
         </AzureMapsProvider>
