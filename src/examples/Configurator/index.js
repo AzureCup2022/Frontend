@@ -128,17 +128,6 @@ function Configurator() {
 						))}
 					</MDBox>
 				</MDBox>
-				<MDBox
-					display="flex"
-					justifyContent="space-between"
-					alignItems="center"
-					mt={3}
-					lineHeight={1}
-				>
-					<MDTypography variant="h6">Navbar Fixed</MDTypography>
-
-					<Switch checked={fixedNavbar} onChange={handleFixedNavbar} />
-				</MDBox>
 				<Divider />
 				<MDBox display="flex" justifyContent="space-between" alignItems="center" lineHeight={1}>
 					<MDTypography variant="h6">Light / Dark</MDTypography>
